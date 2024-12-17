@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <Button
+        android:id="@+id/btn_start_call"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:text="Начать звонок"
+        android:textSize="22sp"
+        android:background="#007AFF"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="center" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:text="Выйти"
+        android:textSize="22sp"
+        android:background="#007AFF"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp" />
+</LinearLayout>
