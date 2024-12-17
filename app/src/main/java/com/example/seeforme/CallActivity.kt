@@ -83,6 +83,7 @@ class CallActivity : AppCompatActivity() {
         signalingClient.connect()
         signalingClient.setOnLoginCompleteListener {
             val role = signalingClient.getUserRole()
+            //dumb test for 1v1 call
             signalingClient.setOnReadyListener {
                 if (role == "caller") {
                     webRTCClient.startLocalVideoCapture()
