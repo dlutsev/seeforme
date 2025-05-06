@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "130989383772",
+    "project_id": "see-for-me-3eb7a",
+    "storage_bucket": "see-for-me-3eb7a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:130989383772:android:70df889e273615f39a8699",
+        "android_client_info": {
+          "package_name": "com.example.seeforme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT7aRwKOhjoygsja-sKagNZwGDPwmfIbA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
