@@ -2,8 +2,10 @@ package com.example.seeforme
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.messaging.FirebaseMessaging
 
 class RoleActivity : AppCompatActivity() {
 
@@ -19,6 +21,15 @@ class RoleActivity : AppCompatActivity() {
         volunteerButton.setOnClickListener {
             isVolunteer = true
             navigateToRegistration()
+            Log.d("FCM", "Try to subscribe")
+            FirebaseMessaging.getInstance().subscribeToTopic("help-request")
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("FCM", "Подписка на топик успешна")
+                    } else {
+                        Log.e("FCM", "Ошибка подписки", task.exception)
+                    }
+                }
         }
 
         userButton.setOnClickListener {
