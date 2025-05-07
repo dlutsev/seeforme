@@ -52,7 +52,7 @@ class RegistrationActivity : AppCompatActivity() {
         json.put("role", isVolunteer)
         val requestBody = RequestBody.create(mediaType, json.toString())
         val request = Request.Builder()
-            .url("https://seeforme.ru/v1/auth/register")
+            .url("https://seeforme.ru/register")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .build()
