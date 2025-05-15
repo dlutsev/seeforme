@@ -9,26 +9,30 @@ import android.util.Log
 class SignalingClient(
     private val serverUrl: String,
     private val userName: String,
+    private val userRole: String, // 'volunteer' или 'blind'
     private val listener: SignalingListener
 ) {
     interface SignalingListener {
         fun onOfferReceived(offer: String)
         fun onAnswerReceived(answer: String)
         fun onIceCandidateReceived(candidate: String)
+        fun onCallMatched(targetUser: String) // Новый метод для уведомления о соединении
+        fun onCallRequest(fromUser: String) // Новый метод для волонтеров
+        fun onCallEnded(reason: String) // Уведомление об окончании звонка
+        fun onQueueUpdate(position: Int) // Обновление позиции в очереди
     }
 
     private val client = OkHttpClient()
     private lateinit var webSocket: WebSocket
     private var isLoggedIn = false
     private var onLoginCompleteListener: (() -> Unit)? = null
-    private var onReadyListener: (() -> Unit)? = null
 
     fun connect() {
         val request = Request.Builder().url(serverUrl).build()
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d("SignalingClient", "WebSocket connected")
-                sendLogin(userName)
+                sendLogin(userName, userRole)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -39,7 +43,10 @@ class SignalingClient(
                     "answer" -> listener.onAnswerReceived(data.getString("answer"))
                     "candidate" -> listener.onIceCandidateReceived(data.getString("candidate"))
                     "login" -> handleLoginResponse(data)
-                    "ready" -> handleReadyMessage()
+                    "call_matched" -> listener.onCallMatched(data.getString("target"))
+                    "call_request" -> listener.onCallRequest(data.getString("from"))
+                    "call_ended" -> listener.onCallEnded(data.getString("reason"))
+                    "queued" -> listener.onQueueUpdate(data.getInt("position"))
                 }
             }
 
@@ -49,13 +56,10 @@ class SignalingClient(
         })
     }
 
-    private var userRole: String? = null
-
     fun handleLoginResponse(data: JSONObject) {
         val success = data.optBoolean("success", false)
         if (success) {
             isLoggedIn = true
-            userRole = data.optString("role")
             Log.d("SignalingClient", "Login successful for user: $userName, role: $userRole")
             onLoginCompleteListener?.invoke()
         } else {
@@ -63,31 +67,51 @@ class SignalingClient(
         }
     }
 
-    fun getUserRole(): String? {
+    fun getUserRole(): String {
         return userRole
     }
-
-    fun handleReadyMessage() {
-        onReadyListener?.invoke()
-    }
-
-    fun setOnReadyListener(listener: () -> Unit) {
-        onReadyListener = listener
-    }
-
 
     fun setOnLoginCompleteListener(listener: () -> Unit) {
         onLoginCompleteListener = listener
     }
 
-    fun sendLogin(userName: String) {
-        Log.d("SignalingClient", "Sending login request for user: $userName")
+    fun sendLogin(userName: String, role: String) {
+        Log.d("SignalingClient", "Sending login request for user: $userName as $role")
         webSocket.send(
             JSONObject().apply {
                 put("type", "login")
                 put("name", userName)
+                put("role", role)
             }.toString()
         )
+    }
+
+    // Запрос звонка (для слепых пользователей)
+    fun requestCall() {
+        if (isLoggedIn && userRole == "blind") {
+            Log.d("SignalingClient", "Requesting call")
+            webSocket.send(
+                JSONObject().apply {
+                    put("type", "request_call")
+                }.toString()
+            )
+        } else {
+            Log.e("SignalingClient", "Cannot request call: not logged in or not a blind user")
+        }
+    }
+
+    // Волонтер сообщает о готовности принимать звонки
+    fun reportVolunteerReady() {
+        if (isLoggedIn && userRole == "volunteer") {
+            Log.d("SignalingClient", "Volunteer reporting ready")
+            webSocket.send(
+                JSONObject().apply {
+                    put("type", "volunteer_ready")
+                }.toString()
+            )
+        } else {
+            Log.e("SignalingClient", "Cannot report ready: not logged in or not a volunteer")
+        }
     }
 
     fun sendOffer(targetUser: String, offer: String) {
@@ -139,4 +163,15 @@ class SignalingClient(
         }
     }
 
+    fun sendLeave(targetUser: String) {
+        if (isLoggedIn) {
+            Log.d("SignalingClient", "Sending leave to $targetUser")
+            webSocket.send(
+                JSONObject().apply {
+                    put("type", "leave")
+                    put("target", targetUser)
+                }.toString()
+            )
+        }
+    }
 }
