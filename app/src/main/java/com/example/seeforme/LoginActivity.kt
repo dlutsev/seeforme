@@ -39,50 +39,61 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginUser(email: String, password: String) {
         val client = OkHttpClient()
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val json = JSONObject().apply {
-            put("email", email)
-            put("password", password)
-        }
 
-        val requestBody = RequestBody.create(mediaType, json.toString())
+        // Создаем тело запроса в формате form-urlencoded
+        val formBody = FormBody.Builder()
+            .add("email", email)
+            .add("password", password)
+            .build()
+
         val request = Request.Builder()
             .url("https://seeforme.ru/login")
-            .post(requestBody)
-            .addHeader("Content-Type", "application/json")
+            .post(formBody)
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Ошибка авторизации", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Ошибка авторизации: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("LOGIN", "Ошибка: ${e.message}")
                 }
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                val responseBody = response.body?.string()
+                Log.d("LOGIN", "Статус: ${response.code}, Ответ: $responseBody")
+
                 runOnUiThread {
                     if (response.isSuccessful) {
-                        val responseBody = response.body?.string()
-                        val jsonResponse = JSONObject(responseBody)
-                        val token = jsonResponse.getString("token")
-                        val isVolunteer = responseBody?.contains("\"role\":false") == true
-                        val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                        with(sharedPreferences.edit()) {
-                            putBoolean("isLoggedIn", true)
-                            putBoolean("isVolunteer", isVolunteer)
-                            putString("token", token)
-                            apply()
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val token = jsonResponse.getString("token")
+                            val isVolunteer = responseBody?.contains("\"role\":false") == true
+
+                            val sharedPreferences = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                            with(sharedPreferences.edit()) {
+                                putBoolean("isLoggedIn", true)
+                                putBoolean("isVolunteer", isVolunteer)
+                                putString("token", token)
+                                putString("username", email.split("@")[0]) // Сохраняем имя пользователя
+                                apply()
+                            }
+
+                            if (isVolunteer) {
+                                val intent = Intent(applicationContext, VolunteerMainActivity::class.java)
+                                startActivity(intent)
+                            } else {
+                                val intent = Intent(applicationContext, UserMainActivity::class.java)
+                                startActivity(intent)
+                            }
+                            finish()
+                        } catch (e: Exception) {
+                            Log.e("LOGIN", "Ошибка обработки JSON: ${e.message}")
+                            Toast.makeText(applicationContext, "Ошибка обработки ответа", Toast.LENGTH_SHORT).show()
                         }
-                        if (isVolunteer) {
-                            val intent = Intent(applicationContext, VolunteerMainActivity::class.java)
-                            startActivity(intent)
-                        } else {
-                            val intent = Intent(applicationContext, UserMainActivity::class.java)
-                            startActivity(intent)
-                        }
-                        finish()
                     } else {
-                        Toast.makeText(applicationContext, "Неверные данные", Toast.LENGTH_SHORT).show()
+                        Log.d("LOGIN", "Ошибка: ${response.code}, ${response.message}")
+                        Toast.makeText(applicationContext, "Ошибка авторизации: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
