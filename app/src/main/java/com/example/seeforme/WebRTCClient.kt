@@ -172,7 +172,7 @@ class WebRTCClient(
         val iceServers = listOf(
             PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer(),
 
-        )
+            )
         val rtcConfig = PeerConnection.RTCConfiguration(iceServers)
         rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
         return peerConnectionFactory.createPeerConnection(rtcConfig, object : PeerConnection.Observer {
@@ -272,4 +272,3 @@ open class SdpObserverAdapter : SdpObserver {
         Log.e("SdpObserverAdapter", "Set operation failed: $error")
     }
 }
-

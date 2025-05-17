@@ -2,10 +2,15 @@ package com.example.seeforme
 
 import SignalingClient
 import WebRTCClient
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import org.json.JSONObject
 import org.webrtc.*
 
@@ -18,6 +23,10 @@ class CallActivity : AppCompatActivity() {
     private lateinit var signalingClient: SignalingClient
 
     private val iceCandidatesQueue = mutableListOf<String>()
+
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 100
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +88,7 @@ class CallActivity : AppCompatActivity() {
 
         webRTCClient = WebRTCClient(this, eglBase, remoteVideoView, signalingClient)
         webRTCClient.initVideoRenderer(localVideoView, remoteVideoView)
-
+        checkPermissions()
         signalingClient.connect()
         signalingClient.setOnLoginCompleteListener {
             val role = signalingClient.getUserRole()
@@ -101,6 +110,17 @@ class CallActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private fun checkPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE)
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
