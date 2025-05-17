@@ -34,14 +34,14 @@ class SignalingClient(
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("SignalingClient", "Message received: $text")
                 try {
-                    val data = JSONObject(text)
-                    when (data.getString("type")) {
-                        "offer" -> listener.onOfferReceived(data.getString("offer"))
-                        "answer" -> listener.onAnswerReceived(data.getString("answer"))
-                        "candidate" -> listener.onIceCandidateReceived(data.getString("candidate"))
-                        "login" -> handleLoginResponse(data)
-                        "ready" -> handleReadyMessage()
-                    }
+                val data = JSONObject(text)
+                when (data.getString("type")) {
+                    "offer" -> listener.onOfferReceived(data.getString("offer"))
+                    "answer" -> listener.onAnswerReceived(data.getString("answer"))
+                    "candidate" -> listener.onIceCandidateReceived(data.getString("candidate"))
+                    "login" -> handleLoginResponse(data)
+                    "ready" -> handleReadyMessage()
+                }
                 } catch (e: Exception) {
                     Log.e("SignalingClient", "Error parsing message: ${e.message}")
                 }
