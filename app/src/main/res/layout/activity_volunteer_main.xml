@@ -5,13 +5,38 @@
     android:orientation="vertical"
     android:gravity="center">
 
+    <TextView
+        android:id="@+id/tv_volunteer_welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Панель волонтера"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="50dp" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ожидание запросов о помощи..."
+        android:textSize="18sp"
+        android:layout_marginBottom="30dp" />
+
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Вы получите уведомление, когда кому-то потребуется ваша помощь."
+        android:textAlignment="center"
+        android:layout_marginBottom="50dp" />
+
     <Button
         android:id="@+id/btn_start_call"
         android:layout_width="300dp"
         android:layout_height="100dp"
-        android:text="Начать звонок"
+        android:text="Тестовый вызов"
         android:textSize="22sp"
-        android:background="#007AFF"
+        android:backgroundTint="#007AFF"
         android:textColor="#FFFFFF"
         android:layout_gravity="center" />
 
@@ -21,7 +46,7 @@
         android:layout_height="100dp"
         android:text="Выйти"
         android:textSize="22sp"
-        android:background="#007AFF"
+        android:backgroundTint="#F44336"
         android:textColor="#FFFFFF"
         android:layout_gravity="center"
         android:layout_marginTop="50dp" />

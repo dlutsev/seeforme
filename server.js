@@ -67,9 +67,15 @@ function handleLogin(ws, data) {
     ws.name = name;
     users[name] = ws;
     ws.role = readyUsers.length === 0 ? 'caller' : 'callee';
+    ws.userType = data.userType || 'user';
     readyUsers.push(name);
 
-    ws.send(JSON.stringify({ type: 'login', success: true, role: ws.role }));
+    ws.send(JSON.stringify({ 
+      type: 'login', 
+      success: true, 
+      role: ws.role,
+      userType: ws.userType
+    }));
     console.log(`User ${name} logged in as ${ws.role}`);
 
     if (readyUsers.length === 2) {
@@ -82,59 +88,56 @@ function handleLogin(ws, data) {
 }
 
 function handleOffer(ws, data) {
-  if (ws.role !== 'caller') {
-    ws.send(JSON.stringify({ type: 'error', message: 'Only the caller can send an offer.' }));
-    return;
-  }
-  if (!callInProgress && users[data.target]) {
-    users[data.target].send(JSON.stringify({
+  const target = data.target;
+  if (users[target]) {
+    users[target].send(JSON.stringify({
       type: 'offer',
       offer: data.offer,
       name: ws.name,
     }));
     callInProgress = true;
-    console.log(`Offer sent from ${ws.name} to ${data.target}.`);
+    console.log(`Offer sent from ${ws.name} to ${target}.`);
   } else {
-    ws.send(JSON.stringify({ type: 'error', message: 'Target user not ready or call already in progress.' }));
+    ws.send(JSON.stringify({ type: 'error', message: 'Target user not connected.' }));
+    console.error(`Failed to send offer: Target ${target} not connected.`);
   }
 }
 
 function handleAnswer(ws, data) {
-  if (ws.role !== 'callee') {
-    ws.send(JSON.stringify({ type: 'error', message: 'Only the callee can send an answer.' }));
-    return;
-  }
-  if (users[data.target]) {
-    users[data.target].send(JSON.stringify({
+  const target = data.target;
+  if (users[target]) {
+    users[target].send(JSON.stringify({
       type: 'answer',
       answer: data.answer,
       name: ws.name,
     }));
-    console.log(`Answer sent from ${ws.name} to ${data.target}.`);
+    console.log(`Answer sent from ${ws.name} to ${target}.`);
   } else {
-    ws.send(JSON.stringify({ type: 'error', message: `User ${data.target} is not connected.` }));
-    console.error(`Failed to send answer: Target ${data.target} not connected.`);
+    ws.send(JSON.stringify({ type: 'error', message: `User ${target} is not connected.` }));
+    console.error(`Failed to send answer: Target ${target} not connected.`);
   }
 }
 
 function handleCandidate(ws, data) {
-  if (users[data.target]) {
-    users[data.target].send(JSON.stringify({
+  const target = data.target;
+  if (users[target]) {
+    users[target].send(JSON.stringify({
       type: 'candidate',
       candidate: data.candidate,
       name: ws.name,
     }));
-    console.log(`Candidate sent from ${ws.name} to ${data.target}.`);
+    console.log(`Candidate sent from ${ws.name} to ${target}.`);
   }
 }
 
 function handleLeave(ws, data) {
-  if (users[data.target]) {
-    users[data.target].send(JSON.stringify({
+  const target = data.target;
+  if (users[target]) {
+    users[target].send(JSON.stringify({
       type: 'leave',
       name: ws.name,
     }));
-    console.log(`${ws.name} has left the call with ${data.target}.`);
+    console.log(`${ws.name} has left the call with ${target}.`);
   }
   callInProgress = false;
 }

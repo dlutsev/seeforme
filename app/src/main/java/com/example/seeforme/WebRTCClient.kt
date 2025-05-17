@@ -1,3 +1,5 @@
+package com.example.seeforme
+
 import android.content.Context
 import org.json.JSONObject
 import org.webrtc.*
@@ -182,13 +184,13 @@ class WebRTCClient(
         return peerConnectionFactory.createPeerConnection(rtcConfig, object : PeerConnection.Observer {
             override fun onIceCandidate(candidate: IceCandidate) {
                 Log.d("WebRTCClient", "Generated ICE candidate: ${candidate.sdp}")
-                if (targetUser == "user1"|| isAnswerReceived) {
+                if (isRemoteDescriptionSet() || isAnswerReceived) {
                     signalingClient.sendCandidate(targetUser, JSONObject().apply {
                         put("sdpMid", candidate.sdpMid)
                         put("sdpMLineIndex", candidate.sdpMLineIndex)
                         put("candidate", candidate.sdp)
                     }.toString())
-                    Log.d("WebRTCClient", "Send ICE candidate to user1: ${candidate.sdp}")
+                    Log.d("WebRTCClient", "Send ICE candidate to $targetUser: ${candidate.sdp}")
                 }
                 else {
                     pendingIceCandidates.add(candidate)

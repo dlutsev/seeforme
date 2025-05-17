@@ -1,3 +1,5 @@
+package com.example.seeforme
+
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -22,6 +24,7 @@ class SignalingClient(
     private var isLoggedIn = false
     private var onLoginCompleteListener: (() -> Unit)? = null
     private var onReadyListener: (() -> Unit)? = null
+    private var onHelpAcceptedListener: ((String) -> Unit)? = null
 
     fun connect() {
         val request = Request.Builder().url(serverUrl).build()
@@ -41,6 +44,10 @@ class SignalingClient(
                     "candidate" -> listener.onIceCandidateReceived(data.getString("candidate"))
                     "login" -> handleLoginResponse(data)
                     "ready" -> handleReadyMessage()
+                    "help_request_sent" -> handleHelpRequestSent(data)
+                    "help_accepted" -> handleHelpAccepted(data)
+                    "connection_established" -> handleConnectionEstablished(data)
+                    "user_disconnect" -> handleUserDisconnect(data)
                 }
                 } catch (e: Exception) {
                     Log.e("SignalingClient", "Error parsing message: ${e.message}")
@@ -73,12 +80,33 @@ class SignalingClient(
         val success = data.optBoolean("success", false)
         if (success) {
             isLoggedIn = true
-            userRole = data.optString("role")
+            userRole = data.optString("role", data.optString("userType", "user"))
             Log.d("SignalingClient", "Login successful for user: $userName, role: $userRole")
             onLoginCompleteListener?.invoke()
         } else {
             Log.e("SignalingClient", "Login failed: ${data.optString("message")}")
         }
+    }
+    
+    fun handleHelpRequestSent(data: JSONObject) {
+        val requestId = data.optString("requestId")
+        Log.d("SignalingClient", "Help request sent with ID: $requestId")
+    }
+    
+    fun handleHelpAccepted(data: JSONObject) {
+        val volunteerName = data.optString("volunteerName")
+        Log.d("SignalingClient", "Help request accepted by volunteer: $volunteerName")
+        onHelpAcceptedListener?.invoke(volunteerName)
+    }
+    
+    fun handleConnectionEstablished(data: JSONObject) {
+        val userId = data.optString("userId")
+        Log.d("SignalingClient", "Connection established with user: $userId")
+    }
+    
+    fun handleUserDisconnect(data: JSONObject) {
+        val userName = data.optString("name")
+        Log.d("SignalingClient", "User disconnected: $userName")
     }
 
     fun getUserRole(): String? {
@@ -95,6 +123,10 @@ class SignalingClient(
 
     fun setOnLoginCompleteListener(listener: () -> Unit) {
         onLoginCompleteListener = listener
+    }
+    
+    fun setOnHelpAcceptedListener(listener: (String) -> Unit) {
+        onHelpAcceptedListener = listener
     }
 
     fun disconnect() {
@@ -113,6 +145,7 @@ class SignalingClient(
             userRole = null
             onLoginCompleteListener = null
             onReadyListener = null
+            onHelpAcceptedListener = null
             
             Log.d("SignalingClient", "Disconnected from signaling server")
         } catch (e: Exception) {
@@ -126,8 +159,38 @@ class SignalingClient(
             JSONObject().apply {
                 put("type", "login")
                 put("name", userName)
+                // Определяем тип пользователя (временно: если содержит "volunteer", то это волонтер)
+                put("userType", if (userName.contains("volunteer")) "volunteer" else "user")
             }.toString()
         )
+    }
+    
+    fun sendHelpRequest(question: String) {
+        if (isLoggedIn) {
+            Log.d("SignalingClient", "Sending help request: $question")
+            webSocket?.send(
+                JSONObject().apply {
+                    put("type", "help_request")
+                    put("question", question)
+                }.toString()
+            )
+        } else {
+            Log.e("SignalingClient", "Cannot send help request before login")
+        }
+    }
+    
+    fun acceptHelpRequest(requestId: String) {
+        if (isLoggedIn && userRole == "volunteer") {
+            Log.d("SignalingClient", "Accepting help request: $requestId")
+            webSocket?.send(
+                JSONObject().apply {
+                    put("type", "accept_help")
+                    put("requestId", requestId)
+                }.toString()
+            )
+        } else {
+            Log.e("SignalingClient", "Only logged in volunteers can accept help requests")
+        }
     }
 
     fun sendOffer(targetUser: String, offer: String) {

@@ -1,7 +1,5 @@
 package com.example.seeforme
 
-import SignalingClient
-import WebRTCClient
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -13,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import org.json.JSONObject
 import org.webrtc.*
+import com.example.seeforme.SignalingClient
+import com.example.seeforme.WebRTCClient
 
 class CallActivity : AppCompatActivity() {
 
@@ -96,16 +96,23 @@ class CallActivity : AppCompatActivity() {
         webRTCClient.initVideoRenderer(localVideoView, remoteVideoView)
         checkPermissions()
         signalingClient.connect()
+        
         signalingClient.setOnLoginCompleteListener {
             val role = signalingClient.getUserRole()
-            //dumb test for 1v1 call
+            Log.d("CallActivity", "Logged in with role: $role")
+            
+            // Ждем события ready от сервера
             signalingClient.setOnReadyListener {
+                Log.d("CallActivity", "Ready event received, role: $role")
+                
                 if (role == "caller") {
+                    // Пользователь - инициатор звонка
                     webRTCClient.startLocalVideoCapture()
                     webRTCClient.createOffer(targetUser, signalingClient) { offer ->
                         signalingClient.sendOffer(targetUser, offer)
                     }
                 } else if (role == "callee") {
+                    // Волонтер - принимает звонок
                     webRTCClient.startLocalVideoCapture()
                 }
             }
