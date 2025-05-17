@@ -18,7 +18,7 @@ class SignalingClient(
     }
 
     private val client = OkHttpClient()
-    private lateinit var webSocket: WebSocket
+    private var webSocket: WebSocket? = null
     private var isLoggedIn = false
     private var onLoginCompleteListener: (() -> Unit)? = null
     private var onReadyListener: (() -> Unit)? = null
@@ -33,18 +33,36 @@ class SignalingClient(
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("SignalingClient", "Message received: $text")
-                val data = JSONObject(text)
-                when (data.getString("type")) {
-                    "offer" -> listener.onOfferReceived(data.getString("offer"))
-                    "answer" -> listener.onAnswerReceived(data.getString("answer"))
-                    "candidate" -> listener.onIceCandidateReceived(data.getString("candidate"))
-                    "login" -> handleLoginResponse(data)
-                    "ready" -> handleReadyMessage()
+                try {
+                    val data = JSONObject(text)
+                    when (data.getString("type")) {
+                        "offer" -> listener.onOfferReceived(data.getString("offer"))
+                        "answer" -> listener.onAnswerReceived(data.getString("answer"))
+                        "candidate" -> listener.onIceCandidateReceived(data.getString("candidate"))
+                        "login" -> handleLoginResponse(data)
+                        "ready" -> handleReadyMessage()
+                    }
+                } catch (e: Exception) {
+                    Log.e("SignalingClient", "Error parsing message: ${e.message}")
                 }
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                Log.d("SignalingClient", "WebSocket closing: $code - $reason")
+                isLoggedIn = false
+                userRole = null
+            }
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                Log.d("SignalingClient", "WebSocket closed: $code - $reason")
+                isLoggedIn = false
+                userRole = null
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e("SignalingClient", "WebSocket error: ${t.message}")
+                isLoggedIn = false
+                userRole = null
             }
         })
     }
@@ -75,14 +93,36 @@ class SignalingClient(
         onReadyListener = listener
     }
 
-
     fun setOnLoginCompleteListener(listener: () -> Unit) {
         onLoginCompleteListener = listener
     }
 
+    fun disconnect() {
+        try {
+            webSocket?.send(
+                JSONObject().apply {
+                    put("type", "leave")
+                    put("name", userName)
+                }.toString()
+            )
+            
+            webSocket?.close(1000, "User disconnected")
+            webSocket = null
+            
+            isLoggedIn = false
+            userRole = null
+            onLoginCompleteListener = null
+            onReadyListener = null
+            
+            Log.d("SignalingClient", "Disconnected from signaling server")
+        } catch (e: Exception) {
+            Log.e("SignalingClient", "Error during disconnect: ${e.message}")
+        }
+    }
+
     fun sendLogin(userName: String) {
         Log.d("SignalingClient", "Sending login request for user: $userName")
-        webSocket.send(
+        webSocket?.send(
             JSONObject().apply {
                 put("type", "login")
                 put("name", userName)
@@ -93,7 +133,7 @@ class SignalingClient(
     fun sendOffer(targetUser: String, offer: String) {
         if (isLoggedIn) {
             Log.d("SignalingClient", "Sending offer to $targetUser: $offer")
-            webSocket.send(
+            webSocket?.send(
                 JSONObject().apply {
                     put("type", "offer")
                     put("target", targetUser)
@@ -108,7 +148,7 @@ class SignalingClient(
     fun sendAnswer(targetUser: String, answer: String) {
         if (isLoggedIn) {
             Log.d("SignalingClient", "Sending answer to $targetUser: $answer")
-            webSocket.send(
+            webSocket?.send(
                 JSONObject().apply {
                     put("type", "answer")
                     put("target", targetUser)
@@ -124,7 +164,7 @@ class SignalingClient(
         if (isLoggedIn) {
             Log.d("SignalingClient", "Sending candidate to $targetUser: $candidate")
             try {
-                webSocket.send(
+                webSocket?.send(
                     JSONObject().apply {
                         put("type", "candidate")
                         put("target", targetUser)
@@ -138,5 +178,4 @@ class SignalingClient(
             Log.e("SignalingClient", "Cannot send candidate before login.")
         }
     }
-
 }

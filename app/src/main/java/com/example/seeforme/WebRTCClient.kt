@@ -171,10 +171,14 @@ class WebRTCClient(
         Log.d("WebRTCClient", "Creating PeerConnection")
         val iceServers = listOf(
             PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer(),
-
-            )
+        )
         val rtcConfig = PeerConnection.RTCConfiguration(iceServers)
         rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
+        rtcConfig.bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE
+        rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE
+        rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
+        rtcConfig.keyType = PeerConnection.KeyType.ECDSA
+
         return peerConnectionFactory.createPeerConnection(rtcConfig, object : PeerConnection.Observer {
             override fun onIceCandidate(candidate: IceCandidate) {
                 Log.d("WebRTCClient", "Generated ICE candidate: ${candidate.sdp}")
@@ -238,25 +242,46 @@ class WebRTCClient(
 
     fun endCall() {
         Log.d("WebRTCClient", "Ending call")
-        if (::videoCapturer.isInitialized) {
-            videoCapturer.stopCapture()
+        try {
+            if (::videoCapturer.isInitialized) {
+                videoCapturer.stopCapture()
+            }
+            localVideoTrack?.dispose()
+            localAudioTrack?.dispose()
+            remoteVideoTrack?.dispose()
+            
+            peerConnection?.dispose()
+            peerConnection = null
+            
+            remoteDescriptionSet = false
+            isAnswerReceived = false
+            pendingIceCandidates.clear()
+            
+            Log.d("WebRTCClient", "Call ended successfully")
+        } catch (e: Exception) {
+            Log.e("WebRTCClient", "Error ending call: ${e.message}")
         }
-        peerConnection?.close()
-        peerConnection = null
     }
 
     fun release() {
         Log.d("WebRTCClient", "Releasing resources")
-        if (::videoCapturer.isInitialized) {
-            videoCapturer.stopCapture()
-            videoCapturer.dispose()
+        try {
+            endCall()
+            
+            if (::videoCapturer.isInitialized) {
+                videoCapturer.dispose()
+            }
+            if (::localVideoSource.isInitialized) {
+                localVideoSource.dispose()
+            }
+            if (::peerConnectionFactory.isInitialized) {
+                peerConnectionFactory.dispose()
+            }
+            
+            Log.d("WebRTCClient", "Resources released successfully")
+        } catch (e: Exception) {
+            Log.e("WebRTCClient", "Error releasing resources: ${e.message}")
         }
-        localVideoSource.dispose()
-        localVideoTrack?.dispose()
-        localAudioTrack?.dispose()
-        remoteVideoTrack?.dispose()
-        peerConnection?.close()
-        peerConnection = null
     }
 }
 

@@ -35,6 +35,12 @@ class CallActivity : AppCompatActivity() {
         val currentUser = intent.getStringExtra("currentUser") ?: return
         val targetUser = intent.getStringExtra("targetUser") ?: return
 
+        if (!WebRTCState.startCall(currentUser, targetUser)) {
+            Toast.makeText(this, "Звонок уже активен", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
         localVideoView = findViewById(R.id.local_video_view)
         remoteVideoView = findViewById(R.id.remote_video_view)
         eglBase = EglBase.create()
@@ -106,7 +112,7 @@ class CallActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_end_call).setOnClickListener {
-            webRTCClient.endCall()
+            endCall()
             finish()
         }
     }
@@ -121,9 +127,18 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
+    private fun endCall() {
+        webRTCClient.endCall()
+        signalingClient.disconnect()
+        WebRTCState.endCall()
+        iceCandidatesQueue.clear()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
+        endCall()
+        localVideoView.release()
+        remoteVideoView.release()
         eglBase.release()
         webRTCClient.release()
     }
