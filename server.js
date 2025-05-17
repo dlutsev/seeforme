@@ -1,5 +1,18 @@
 const WebSocket = require('ws');
+const admin = require('firebase-admin');
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
+// Инициализация Firebase Admin SDK
+const serviceAccount = require('./firebase-service-account.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
 
 const wss = new WebSocket.Server({ port: 3000 }, () => {
   console.log('Signaling server is running on ws://localhost:3000');
@@ -8,6 +21,31 @@ const wss = new WebSocket.Server({ port: 3000 }, () => {
 let users = {};
 let readyUsers = [];
 let callInProgress = false;
+
+// Эндпоинт для отправки push-уведомлений
+app.post('/send-notification', async (req, res) => {
+  try {
+    const { topic, data } = req.body;
+    
+    const message = {
+      data: data,
+      topic: topic
+    };
+
+    const response = await admin.messaging().send(message);
+    console.log('Successfully sent message:', response);
+    res.status(200).json({ success: true, message: 'Notification sent successfully' });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Запуск HTTP сервера
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`HTTP Server is running on port ${PORT}`);
+});
 
 wss.on('connection', (ws) => {
   console.log('New client connected');

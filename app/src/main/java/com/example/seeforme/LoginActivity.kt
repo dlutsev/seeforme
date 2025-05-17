@@ -39,8 +39,6 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginUser(email: String, password: String) {
         val client = OkHttpClient()
-
-        // Создаем тело запроса в формате form-urlencoded
         val formBody = FormBody.Builder()
             .add("email", email)
             .add("password", password)
@@ -75,7 +73,7 @@ class LoginActivity : AppCompatActivity() {
                                 putBoolean("isLoggedIn", true)
                                 putBoolean("isVolunteer", isVolunteer)
                                 putString("token", token)
-                                putString("username", email.split("@")[0]) // Сохраняем имя пользователя
+                                putString("username", email.split("@")[0])
                                 apply()
                             }
 

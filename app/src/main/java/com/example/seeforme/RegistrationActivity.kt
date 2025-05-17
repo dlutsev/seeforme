@@ -45,16 +45,14 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun registerUser(email: String, password: String, isVolunteer: Boolean) {
         val client = OkHttpClient()
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val json = JSONObject()
-        json.put("email", email)
-        json.put("password", password)
-        json.put("role", isVolunteer)
-        val requestBody = RequestBody.create(mediaType, json.toString())
+        val formBody = FormBody.Builder()
+            .add("email", email)
+            .add("password", password)
+            .add("role", isVolunteer.toString())
+            .build()
         val request = Request.Builder()
             .url("https://seeforme.ru/register")
-            .post(requestBody)
-            .addHeader("Content-Type", "application/json")
+            .post(formBody)
             .build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -63,7 +61,6 @@ class RegistrationActivity : AppCompatActivity() {
                         .show()
                 }
             }
-
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
                     runOnUiThread {
