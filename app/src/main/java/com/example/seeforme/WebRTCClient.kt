@@ -14,6 +14,14 @@ class WebRTCClient(
     private val signalingClient: SignalingClient
 ) {
 
+    companion object {
+        // Настройки качества видео
+        private const val VIDEO_WIDTH = 1280
+        private const val VIDEO_HEIGHT = 720
+        private const val VIDEO_FPS = 30
+        private const val VIDEO_BITRATE = 2000000 // 2 Mbps
+    }
+
     private lateinit var peerConnectionFactory: PeerConnectionFactory
     private var localVideoTrack: VideoTrack? = null
     private var remoteVideoTrack: VideoTrack? = null
@@ -74,16 +82,30 @@ class WebRTCClient(
     private fun createLocalTrack(localRenderer: SurfaceViewRenderer) {
         Log.d("WebRTCClient", "Creating local video track")
         videoCapturer = createVideoCapturer()
-        localVideoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast)
-        videoCapturer.initialize(
-            SurfaceTextureHelper.create("CaptureThread", eglBase.eglBaseContext),
-            context,
-            localVideoSource.capturerObserver
-        )
-        videoCapturer.startCapture(1920, 1080, 60)
+        
+        // Создаем расширенные настройки видео для улучшения качества
+        val videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast)
+        val surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBase.eglBaseContext)
+        
+        videoCapturer.initialize(surfaceTextureHelper, context, videoSource.capturerObserver)
+
+        
+        localVideoSource = videoSource
+        videoCapturer.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
 
         localVideoTrack = peerConnectionFactory.createVideoTrack("LOCAL_VIDEO_TRACK", localVideoSource)
-        localAudioTrack = peerConnectionFactory.createAudioTrack("LOCAL_AUDIO_TRACK", peerConnectionFactory.createAudioSource(MediaConstraints()))
+        
+        // Настраиваем аудио
+        val audioConstraints = MediaConstraints()
+        audioConstraints.mandatory.add(MediaConstraints.KeyValuePair("googEchoCancellation", "true"))
+        audioConstraints.mandatory.add(MediaConstraints.KeyValuePair("googNoiseSuppression", "true"))
+        audioConstraints.mandatory.add(MediaConstraints.KeyValuePair("googHighpassFilter", "true"))
+        
+        localAudioTrack = peerConnectionFactory.createAudioTrack(
+            "LOCAL_AUDIO_TRACK", 
+            peerConnectionFactory.createAudioSource(audioConstraints)
+        )
+        
         localVideoTrack?.addSink(localRenderer)
     }
 
@@ -181,6 +203,15 @@ class WebRTCClient(
         rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE
         rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
         rtcConfig.keyType = PeerConnection.KeyType.ECDSA
+        
+        // Добавляем параметры для улучшения качества соединения
+        rtcConfig.enableCpuOveruseDetection = true
+        
+        val mediaConstraints = MediaConstraints()
+        // Параметры подключения для лучшего качества
+        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"))
+        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("minVideoBitrate", (VIDEO_BITRATE / 2).toString()))
+        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("maxVideoBitrate", VIDEO_BITRATE.toString()))
 
         return peerConnectionFactory.createPeerConnection(rtcConfig, object : PeerConnection.Observer {
             override fun onIceCandidate(candidate: IceCandidate) {
@@ -240,7 +271,7 @@ class WebRTCClient(
 
     fun startLocalVideoCapture() {
         Log.d("WebRTCClient", "Starting local video capture")
-        videoCapturer.startCapture(1920, 1080, 60)
+        videoCapturer.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
     }
 
     fun endCall() {
@@ -303,7 +334,7 @@ class WebRTCClient(
                 context,
                 localVideoSource.capturerObserver
             )
-            videoCapturer.startCapture(1920, 1080, 60)
+            videoCapturer.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
             
             Log.d("WebRTCClient", "Camera switched to ${if (isFrontCamera) "front" else "back"}")
         } catch (e: Exception) {

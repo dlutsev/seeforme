@@ -139,6 +139,7 @@ class SignalingClient(
     fun handleLeaveMessage(data: JSONObject) {
         val user = data.optString("name", "Unknown")
         Log.d("SignalingClient", "Leave message received from: $user")
+        onCallEndedListener?.invoke()
     }
 
     fun handleCallEnded(data: JSONObject) {
