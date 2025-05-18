@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:background="#FFFFFF"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tv_user_welcome"
-        android:layout_width="wrap_content"
+    <LinearLayout 
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Приложение для слабовидящих"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="50dp" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="@dimen/standard_margin">
 
-    <Button
-        android:id="@+id/btn_request_help"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:text="Запросить помощь волонтера"
-        android:textSize="22sp"
-        android:backgroundTint="#4CAF50"
-        android:textColor="#FFFFFF"
-        android:layout_gravity="center"
-        android:layout_marginBottom="30dp" />
+        <TextView
+            android:id="@+id/tv_user_welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Добро пожаловать!"
+            android:textSize="@dimen/header_text_size"
+            android:textStyle="bold"
+            android:textColor="#007AFF"
+            android:layout_marginBottom="@dimen/large_margin"
+            android:gravity="center" />
 
-    <Button
-        android:id="@+id/btn_logout"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:text="Выйти"
-        android:textSize="22sp"
-        android:backgroundTint="#F44336"
-        android:textColor="#FFFFFF"
-        android:layout_gravity="center"
-        android:layout_marginTop="50dp" />
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_request_help"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/large_button_height"
+            android:text="Запросить помощь волонтера"
+            android:textSize="@dimen/large_button_text_size"
+            android:backgroundTint="#007AFF"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginBottom="@dimen/large_margin" />
+
+        <Button
+            android:id="@+id/btn_logout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:text="Выйти"
+            android:textSize="@dimen/button_text_size"
+            android:backgroundTint="#F44336"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center" 
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginEnd="@dimen/standard_margin" />
+    </LinearLayout>
+</ScrollView>

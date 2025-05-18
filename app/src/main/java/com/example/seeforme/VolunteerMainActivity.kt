@@ -20,12 +20,7 @@ class VolunteerMainActivity : AppCompatActivity() {
         
         // Подписываемся на тему уведомлений для волонтеров
         subscribeToPushNotifications()
-        
-        // Тестовая кнопка для принятия вызова
-        val startCallButton: Button = findViewById(R.id.btn_start_call)
-        startCallButton.setOnClickListener {
-            startCall(volunteerId, "user1")
-        }
+
         
         // Кнопка выхода из аккаунта
         val logoutButton: Button = findViewById(R.id.btn_logout)

@@ -23,6 +23,7 @@ class WebRTCClient(
     private var remoteDescriptionSet = false
     private var isAnswerReceived = false
     private var localAudioTrack: AudioTrack? = null
+    private var isFrontCamera = true
 
     fun initVideoRenderer(localRenderer: SurfaceViewRenderer, remoteRenderer: SurfaceViewRenderer) {
         Log.d("WebRTCClient", "Initializing video renderers")
@@ -88,10 +89,10 @@ class WebRTCClient(
 
     private fun createVideoCapturer(): VideoCapturer {
         return Camera2Enumerator(context).run {
-            deviceNames.firstOrNull { isFrontFacing(it) }?.let {
-                Log.d("WebRTCClient", "Using front-facing camera: $it")
+            deviceNames.firstOrNull { if (isFrontCamera) isFrontFacing(it) else isBackFacing(it) }?.let {
+                Log.d("WebRTCClient", "Using ${if (isFrontCamera) "front" else "back"}-facing camera: $it")
                 createCapturer(it, null)
-            } ?: throw IllegalStateException("No front-facing camera found.")
+            } ?: throw IllegalStateException("No ${if (isFrontCamera) "front" else "back"}-facing camera found.")
         }
     }
 
@@ -283,6 +284,30 @@ class WebRTCClient(
             Log.d("WebRTCClient", "Resources released successfully")
         } catch (e: Exception) {
             Log.e("WebRTCClient", "Error releasing resources: ${e.message}")
+        }
+    }
+
+    fun switchCamera() {
+        Log.d("WebRTCClient", "Switching camera")
+        try {
+            isFrontCamera = !isFrontCamera
+            if (::videoCapturer.isInitialized) {
+                videoCapturer.stopCapture()
+                videoCapturer.dispose()
+            }
+            
+            // Создаем новый VideoCapturer для другой камеры
+            videoCapturer = createVideoCapturer()
+            videoCapturer.initialize(
+                SurfaceTextureHelper.create("CaptureThread", eglBase.eglBaseContext),
+                context,
+                localVideoSource.capturerObserver
+            )
+            videoCapturer.startCapture(1920, 1080, 60)
+            
+            Log.d("WebRTCClient", "Camera switched to ${if (isFrontCamera) "front" else "back"}")
+        } catch (e: Exception) {
+            Log.e("WebRTCClient", "Error switching camera: ${e.message}")
         }
     }
 }

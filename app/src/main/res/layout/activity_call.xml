@@ -1,29 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#000000">
 
-    <!-- Локальное видео -->
-    <org.webrtc.SurfaceViewRenderer
-        android:id="@+id/local_video_view"
-        android:layout_width="100dp"
-        android:layout_height="150dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp" />
-    <!-- Удаленное видео -->
+    <!-- Удаленное видео на весь экран -->
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/remote_video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Кнопка завершения звонка -->
-    <Button
-        android:id="@+id/btn_end_call"
-        android:layout_width="wrap_content"
+    <!-- Локальное видео (скрыто) -->
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/local_video_view"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:visibility="invisible" />
+
+    <!-- Кнопки управления внизу -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="Завершить звонок" />
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/standard_margin">
+
+        <!-- Кнопка переключения камеры (большая круглая синяя иконка) -->
+        <ImageButton
+            android:id="@+id/btn_switch_camera"
+            android:layout_width="@dimen/call_button_size"
+            android:layout_height="@dimen/call_button_size"
+            android:layout_marginEnd="@dimen/call_buttons_spacing"
+            android:background="@drawable/round_button_blue"
+            android:contentDescription="Сменить камеру"
+            android:padding="@dimen/call_button_padding"
+            android:src="@drawable/ic_switch_camera"
+            android:scaleType="fitCenter"
+            android:elevation="4dp" />
+
+        <!-- Кнопка завершения звонка (большая круглая красная иконка) -->
+        <ImageButton
+            android:id="@+id/btn_end_call"
+            android:layout_width="@dimen/call_button_size"
+            android:layout_height="@dimen/call_button_size"
+            android:background="@drawable/round_button_red"
+            android:contentDescription="Завершить звонок"
+            android:padding="@dimen/call_button_padding"
+            android:src="@drawable/ic_end_call"
+            android:scaleType="fitCenter"
+            android:elevation="4dp" />
+    </LinearLayout>
 </RelativeLayout>

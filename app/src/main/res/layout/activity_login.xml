@@ -3,48 +3,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:gravity="center"
     android:padding="16dp">
 
-    <!-- Заголовок, аналогичный заголовку экрана регистрации -->
+    <!-- Заголовок -->
     <TextView
         android:id="@+id/loginTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Войти"
-        android:textSize="24sp"
-        android:textColor="@android:color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="#007AFF"
         android:layout_gravity="center_horizontal"
-        android:paddingBottom="24dp" />
+        android:layout_marginBottom="50dp" />
 
     <!-- Поле для ввода электронной почты -->
     <EditText
         android:id="@+id/emailInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="350dp"
+        android:layout_height="70dp"
         android:hint="Электронная почта"
+        android:textSize="22sp"
+        android:padding="16dp"
         android:inputType="textEmailAddress"
-        android:padding="10dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginBottom="20dp" />
 
     <!-- Поле для ввода пароля -->
     <EditText
         android:id="@+id/passwordInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="350dp"
+        android:layout_height="70dp"
         android:hint="Пароль, мин. 8 символов"
+        android:textSize="22sp"
+        android:padding="16dp"
         android:inputType="textPassword"
-        android:padding="10dp"
-        android:background="@android:color/transparent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginBottom="30dp" />
 
     <!-- Кнопка для входа -->
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Далее"
-        android:backgroundTint="#2196F3"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="24dp"
-        android:padding="12dp" />
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:text="Войти"
+        android:textSize="20sp"
+        android:backgroundTint="#007AFF"
+        android:textColor="#FFFFFF" />
 </LinearLayout>

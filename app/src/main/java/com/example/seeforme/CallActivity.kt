@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -13,6 +14,7 @@ import org.json.JSONObject
 import org.webrtc.*
 import com.example.seeforme.SignalingClient
 import com.example.seeforme.WebRTCClient
+import android.content.Intent
 
 class CallActivity : AppCompatActivity() {
 
@@ -92,6 +94,16 @@ class CallActivity : AppCompatActivity() {
             }
         })
 
+        // Добавляем обработчик завершения звонка
+        signalingClient.setOnCallEndedListener {
+            Log.d("CallActivity", "Call ended by other participant")
+            runOnUiThread {
+                Toast.makeText(this, "Другой участник завершил звонок", Toast.LENGTH_SHORT).show()
+                endCall()
+                finish()
+            }
+        }
+
         webRTCClient = WebRTCClient(this, eglBase, remoteVideoView, signalingClient)
         webRTCClient.initVideoRenderer(localVideoView, remoteVideoView)
         checkPermissions()
@@ -118,9 +130,14 @@ class CallActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.btn_end_call).setOnClickListener {
+        findViewById<ImageButton>(R.id.btn_end_call).setOnClickListener {
             endCall()
             finish()
+        }
+        
+        // Обработчик кнопки переключения камеры
+        findViewById<ImageButton>(R.id.btn_switch_camera).setOnClickListener {
+            webRTCClient.switchCamera()
         }
     }
 
@@ -139,6 +156,13 @@ class CallActivity : AppCompatActivity() {
         signalingClient.disconnect()
         WebRTCState.endCall()
         iceCandidatesQueue.clear()
+
+    }
+
+    override fun onBackPressed() {
+        // Перехватываем нажатие кнопки "Назад" для корректного завершения звонка
+        endCall()
+        super.onBackPressed()
     }
 
     override fun onDestroy() {

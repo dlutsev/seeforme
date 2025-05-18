@@ -9,22 +9,29 @@
 
     <EditText
         android:id="@+id/et_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Электронная почта"/>
+        android:layout_width="350dp"
+        android:layout_height="70dp"
+        android:hint="Электронная почта"
+        android:textSize="22sp"
+        android:padding="16dp"
+        android:layout_marginBottom="20dp"/>
 
     <EditText
         android:id="@+id/et_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="350dp"
+        android:layout_height="70dp"
         android:hint="Пароль, мин. 8 символов"
-        android:inputType="textPassword"/>
+        android:textSize="22sp"
+        android:padding="16dp"
+        android:inputType="textPassword"
+        android:layout_marginBottom="30dp"/>
 
     <Button
         android:id="@+id/btn_register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
         android:text="Далее"
+        android:textSize="20sp"
         android:backgroundTint="#007AFF"
         android:textColor="#FFFFFF" />
 
@@ -33,14 +40,16 @@
         android:layout_height="wrap_content"
         android:text="Уже являетесь пользователем?"
         android:textColor="#808080"
+        android:textSize="18sp"
         android:gravity="center"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="30dp"/>
 
     <Button
         android:id="@+id/btn_login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
         android:text="Войти"
+        android:textSize="20sp"
         android:backgroundTint="#FFFFFF"
         android:textColor="#007AFF"
         android:layout_marginTop="8dp"/>

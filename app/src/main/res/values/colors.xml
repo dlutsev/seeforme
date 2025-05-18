@@ -7,4 +7,13 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Основные цвета приложения -->
+    <color name="primary_blue">#007AFF</color>
+    <color name="light_blue">#4DA2FF</color>
+    <color name="dark_blue">#0055B3</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="text_dark">#333333</color>
+    <color name="text_light">#808080</color>
+    <color name="exit_red">#F44336</color>
 </resources>

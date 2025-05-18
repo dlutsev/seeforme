@@ -1,0 +1,20 @@
+<resources>
+    <!-- Размеры текста -->
+    <dimen name="header_text_size">24sp</dimen>
+    <dimen name="normal_text_size">18sp</dimen>
+    <dimen name="button_text_size">18sp</dimen>
+    <dimen name="large_button_text_size">22sp</dimen>
+    
+    <!-- Отступы -->
+    <dimen name="standard_margin">16dp</dimen>
+    <dimen name="large_margin">32dp</dimen>
+    
+    <!-- Размеры кнопок -->
+    <dimen name="button_height">60dp</dimen>
+    <dimen name="large_button_height">80dp</dimen>
+    
+    <!-- Размеры круглых кнопок для звонка -->
+    <dimen name="call_button_size">65dp</dimen>
+    <dimen name="call_button_padding">15dp</dimen>
+    <dimen name="call_buttons_spacing">40dp</dimen>
+</resources> 

@@ -53,11 +53,7 @@ class UserHelpActivity : AppCompatActivity() {
                     
                     // Также отправляем запрос на сигнальный сервер
                     setupSignalingAndSendRequest(userId, question)
-                    
-                    // Переходим к активности ожидания волонтера
-                    val intent = Intent(this, WaitingActivity::class.java)
-                    startActivity(intent)
-                    finish()
+
                 } else {
                     Toast.makeText(this, "Ошибка при отправке запроса", Toast.LENGTH_SHORT).show()
                 }

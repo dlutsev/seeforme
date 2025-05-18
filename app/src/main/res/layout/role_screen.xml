@@ -8,20 +8,20 @@
 
     <Button
         android:id="@+id/btn_need_help"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:text="Мне нужна визуальная помощь"
-        android:textSize="22sp"
+        android:layout_width="350dp"
+        android:layout_height="150dp"
+        android:text="Запросить помощь"
+        android:textSize="28sp"
         android:background="#007AFF"
         android:textColor="#FFFFFF"
         android:layout_gravity="center" />
 
     <Button
         android:id="@+id/btn_offer_help"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:text="Я хочу предложить помощь"
-        android:textSize="22sp"
+        android:layout_width="350dp"
+        android:layout_height="150dp"
+        android:text="Стать волонтером"
+        android:textSize="28sp"
         android:background="#007AFF"
         android:textColor="#FFFFFF"
 		android:layout_marginTop="50dp"

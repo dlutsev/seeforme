@@ -1,0 +1,20 @@
+<resources>
+    <!-- Размеры текста для планшетов -->
+    <dimen name="header_text_size">30sp</dimen>
+    <dimen name="normal_text_size">22sp</dimen>
+    <dimen name="button_text_size">24sp</dimen>
+    <dimen name="large_button_text_size">28sp</dimen>
+    
+    <!-- Отступы для планшетов -->
+    <dimen name="standard_margin">24dp</dimen>
+    <dimen name="large_margin">48dp</dimen>
+    
+    <!-- Размеры кнопок для планшетов -->
+    <dimen name="button_height">80dp</dimen>
+    <dimen name="large_button_height">120dp</dimen>
+    
+    <!-- Размеры круглых кнопок для звонка -->
+    <dimen name="call_button_size">90dp</dimen>
+    <dimen name="call_button_padding">20dp</dimen>
+    <dimen name="call_buttons_spacing">60dp</dimen>
+</resources> 

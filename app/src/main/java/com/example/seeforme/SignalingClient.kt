@@ -25,6 +25,7 @@ class SignalingClient(
     private var onLoginCompleteListener: (() -> Unit)? = null
     private var onReadyListener: (() -> Unit)? = null
     private var onHelpAcceptedListener: ((String) -> Unit)? = null
+    private var onCallEndedListener: (() -> Unit)? = null
 
     fun connect() {
         val request = Request.Builder().url(serverUrl).build()
@@ -48,6 +49,8 @@ class SignalingClient(
                     "help_accepted" -> handleHelpAccepted(data)
                     "connection_established" -> handleConnectionEstablished(data)
                     "user_disconnect" -> handleUserDisconnect(data)
+                    "leave" -> handleLeaveMessage(data)
+                    "call_ended" -> handleCallEnded(data)
                 }
                 } catch (e: Exception) {
                     Log.e("SignalingClient", "Error parsing message: ${e.message}")
@@ -129,6 +132,21 @@ class SignalingClient(
         onHelpAcceptedListener = listener
     }
 
+    fun setOnCallEndedListener(listener: () -> Unit) {
+        onCallEndedListener = listener
+    }
+
+    fun handleLeaveMessage(data: JSONObject) {
+        val user = data.optString("name", "Unknown")
+        Log.d("SignalingClient", "Leave message received from: $user")
+    }
+
+    fun handleCallEnded(data: JSONObject) {
+        val message = data.optString("message", "Звонок завершен")
+        Log.d("SignalingClient", "Call ended message: $message")
+        onCallEndedListener?.invoke()
+    }
+
     fun disconnect() {
         try {
             webSocket?.send(
@@ -146,6 +164,7 @@ class SignalingClient(
             onLoginCompleteListener = null
             onReadyListener = null
             onHelpAcceptedListener = null
+            onCallEndedListener = null
             
             Log.d("SignalingClient", "Disconnected from signaling server")
         } catch (e: Exception) {
