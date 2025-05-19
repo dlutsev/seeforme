@@ -1,0 +1,133 @@
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: unless-stopped
+    ports:
+      - "18888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@test.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_DISABLE_POSTFIX: "true"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.9.0
+    env_file:
+      - .env
+    container_name: "zookeeper-service"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - ${ZOOKEEPER_OUTSIDE_PORT}:2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.9.0
+    env_file:
+      - .env
+    container_name: "kafka-service"
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    env_file:
+      - .env
+    container_name: "kafka-ui-service"
+    ports:
+      - ${KAFKA_UI_OUTSIDE_PORT}:8080
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    links:
+      - kafka
+      - zookeeper
+
+  notification-service:
+    build:
+      context: services/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    env_file:
+      - .env
+    ports:
+      - ${NOTIFICATION_SERVICE_PORT}:8080
+    depends_on:
+      - kafka
+
+  user:
+    image: user:latest
+    build:
+      context: services
+      dockerfile: Dockerfile.user
+    container_name: user
+    restart: unless-stopped
+    ports:
+      - 28082:8080
+    volumes:
+      - ./services/user/config.yaml:/config.yaml
+    environment:
+      - USER_ADDRESS=:8080
+      - DB_ADDRESS=postgres://postgres:password@postgres:5432/postgres
+      - TOKEN_TTL=2m
+      - JWT_SECRET=dKJHSUDNI7b6*E#N(698MFD*#U98398m
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    image: api:latest
+    build:
+      context: services
+      dockerfile: Dockerfile.api
+    container_name: api
+    restart: unless-stopped
+    ports:
+      - 28080:8080
+    volumes:
+      - ./search-services/api/config.yaml:/config.yaml
+    environment:
+      - API_ADDRESS=:8080
+      - API_TIMEOUT=10s
+      - USER_ADDRESS=user:8080
+      - KAFKA_BROKERS=kafka:29092
+      - KAFKA_HELP_TOPIC=help-request
+    depends_on:
+      - user
+      - kafka
+
+volumes:
+  postgres:
+  pgadmin:

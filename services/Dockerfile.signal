@@ -1,0 +1,16 @@
+FROM golang:1.23 AS build
+
+COPY go.mod go.sum /src/
+COPY signal /src/signal
+
+# Копируем go.mod и go.sum
+COPY go.mod go.sum ./
+
+ENV CGO_ENABLED=0
+RUN cd /src && go build -o /signal signal/main.go
+
+FROM alpine:3.20
+
+COPY --from=build /signal /signal
+
+ENTRYPOINT [ "/signal" ]

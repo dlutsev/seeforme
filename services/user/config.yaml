@@ -1,0 +1,6 @@
+log_level: DEBUG
+user_address: localhost:81
+jwt:
+  secret: "secret"
+  ttl: 24h
+db_address: postgres://postgres:password@postgres:5432/postgres

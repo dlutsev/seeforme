@@ -1,0 +1,9 @@
+log_level: DEBUG
+user_address: user:8080
+api_server:
+  address: :8080
+  timeout: 5s
+kafka:
+  brokers:
+    - kafka:29092
+  help_topic: help-request
