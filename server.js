@@ -138,8 +138,6 @@ function handleLeave(ws, data) {
       name: ws.name,
     }));
     console.log(`${ws.name} has left the call with ${target}.`);
-    
-    // Уведомляем второго участника о завершении звонка
     users[target].send(JSON.stringify({
       type: 'call_ended',
       message: 'Другой участник завершил звонок',

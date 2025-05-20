@@ -18,11 +18,8 @@ class SeeForMeFirebaseMessagingService : FirebaseMessagingService() {
     
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d(TAG, "Получено сообщение: ${remoteMessage.data}")
-        
-        // Для тестирования - любое push-уведомление запускает звонок
         sendCallNotification()
-        
-        // Проверка на payload сообщения (для полной версии)
+
         remoteMessage.data.isNotEmpty().let {
             Log.d(TAG, "Данные сообщения: ${remoteMessage.data}")
         }
@@ -34,8 +31,6 @@ class SeeForMeFirebaseMessagingService : FirebaseMessagingService() {
     
     private fun sendCallNotification() {
         val channelId = "help_requests_channel"
-        
-        // Создаем intent для запуска VolunteerMainActivity с флагом уведомления
         val intent = Intent(this, VolunteerMainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             putExtra("from_notification", true)
@@ -64,8 +59,6 @@ class SeeForMeFirebaseMessagingService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
         
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        
-        // Для Android Oreo и выше нужно создать канал уведомлений
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -78,8 +71,7 @@ class SeeForMeFirebaseMessagingService : FirebaseMessagingService() {
             }
             notificationManager.createNotificationChannel(channel)
         }
-        
-        // Используем уникальный ID для каждого уведомления, чтобы они не перезаписывались
+
         val notificationId = System.currentTimeMillis().toInt()
         notificationManager.notify(notificationId, notificationBuilder.build())
     }

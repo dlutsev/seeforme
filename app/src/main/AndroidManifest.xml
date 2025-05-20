@@ -27,10 +27,6 @@
             android:exported="true"
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".IncomingCallActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <service
             android:name=".SeeForMeFirebaseMessagingService"
             android:exported="false">

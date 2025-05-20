@@ -15,7 +15,6 @@ class WebRTCClient(
 ) {
 
     companion object {
-        // Настройки качества видео
         private const val VIDEO_WIDTH = 1280
         private const val VIDEO_HEIGHT = 720
         private const val VIDEO_FPS = 30
@@ -82,8 +81,6 @@ class WebRTCClient(
     private fun createLocalTrack(localRenderer: SurfaceViewRenderer) {
         Log.d("WebRTCClient", "Creating local video track")
         videoCapturer = createVideoCapturer()
-        
-        // Создаем расширенные настройки видео для улучшения качества
         val videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast)
         val surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBase.eglBaseContext)
         
@@ -94,8 +91,7 @@ class WebRTCClient(
         videoCapturer.startCapture(VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS)
 
         localVideoTrack = peerConnectionFactory.createVideoTrack("LOCAL_VIDEO_TRACK", localVideoSource)
-        
-        // Настраиваем аудио
+
         val audioConstraints = MediaConstraints()
         audioConstraints.mandatory.add(MediaConstraints.KeyValuePair("googEchoCancellation", "true"))
         audioConstraints.mandatory.add(MediaConstraints.KeyValuePair("googNoiseSuppression", "true"))
@@ -189,9 +185,6 @@ class WebRTCClient(
         }, constraints)
     }
 
-
-
-
     fun createPeerConnection(targetUser: String, signalingClient: SignalingClient): PeerConnection? {
         Log.d("WebRTCClient", "Creating PeerConnection")
         val iceServers = listOf(
@@ -203,12 +196,9 @@ class WebRTCClient(
         rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE
         rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
         rtcConfig.keyType = PeerConnection.KeyType.ECDSA
-        
-        // Добавляем параметры для улучшения качества соединения
         rtcConfig.enableCpuOveruseDetection = true
         
         val mediaConstraints = MediaConstraints()
-        // Параметры подключения для лучшего качества
         mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"))
         mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("minVideoBitrate", (VIDEO_BITRATE / 2).toString()))
         mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("maxVideoBitrate", VIDEO_BITRATE.toString()))
@@ -283,10 +273,8 @@ class WebRTCClient(
             localVideoTrack?.dispose()
             localAudioTrack?.dispose()
             remoteVideoTrack?.dispose()
-            
             peerConnection?.dispose()
             peerConnection = null
-            
             remoteDescriptionSet = false
             isAnswerReceived = false
             pendingIceCandidates.clear()
@@ -326,8 +314,6 @@ class WebRTCClient(
                 videoCapturer.stopCapture()
                 videoCapturer.dispose()
             }
-            
-            // Создаем новый VideoCapturer для другой камеры
             videoCapturer = createVideoCapturer()
             videoCapturer.initialize(
                 SurfaceTextureHelper.create("CaptureThread", eglBase.eglBaseContext),

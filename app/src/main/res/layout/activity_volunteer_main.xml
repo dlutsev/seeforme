@@ -20,8 +20,15 @@
             android:textSize="@dimen/header_text_size"
             android:textStyle="bold"
             android:textColor="#007AFF"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center" />
+
+        <include
+            android:id="@+id/statistics_view"
+            layout="@layout/statistics_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp" />
 
         <TextView
             android:id="@+id/tv_status"
@@ -30,7 +37,7 @@
             android:text="Ожидание запросов о помощи..."
             android:textSize="@dimen/normal_text_size"
             android:textColor="#000000"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center" />
 
         <TextView
@@ -40,7 +47,7 @@
             android:text="Вы получите уведомление, когда кому-то потребуется ваша помощь."
             android:textAlignment="center"
             android:textSize="@dimen/normal_text_size"
-            android:layout_marginBottom="60dp"
+            android:layout_marginBottom="40dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp" />
 

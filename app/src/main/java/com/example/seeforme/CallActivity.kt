@@ -93,8 +93,6 @@ class CallActivity : AppCompatActivity() {
                 }
             }
         })
-
-        // Добавляем обработчик завершения звонка
         signalingClient.setOnCallEndedListener {
             Log.d("CallActivity", "Call ended by other participant")
             runOnUiThread {
@@ -112,19 +110,15 @@ class CallActivity : AppCompatActivity() {
         signalingClient.setOnLoginCompleteListener {
             val role = signalingClient.getUserRole()
             Log.d("CallActivity", "Logged in with role: $role")
-            
-            // Ждем события ready от сервера
             signalingClient.setOnReadyListener {
                 Log.d("CallActivity", "Ready event received, role: $role")
                 
                 if (role == "caller") {
-                    // Пользователь - инициатор звонка
                     webRTCClient.startLocalVideoCapture()
                     webRTCClient.createOffer(targetUser, signalingClient) { offer ->
                         signalingClient.sendOffer(targetUser, offer)
                     }
                 } else if (role == "callee") {
-                    // Волонтер - принимает звонок
                     webRTCClient.startLocalVideoCapture()
                 }
             }
@@ -134,8 +128,6 @@ class CallActivity : AppCompatActivity() {
             endCall()
             finish()
         }
-        
-        // Обработчик кнопки переключения камеры
         findViewById<ImageButton>(R.id.btn_switch_camera).setOnClickListener {
             webRTCClient.switchCamera()
         }
@@ -160,7 +152,6 @@ class CallActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        // Перехватываем нажатие кнопки "Назад" для корректного завершения звонка
         endCall()
         super.onBackPressed()
     }

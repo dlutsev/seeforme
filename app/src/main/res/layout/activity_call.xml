@@ -3,21 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000">
-
-    <!-- Удаленное видео на весь экран -->
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/remote_video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!-- Локальное видео (скрыто) -->
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/local_video_view"
         android:layout_width="1dp"
         android:layout_height="1dp"
         android:visibility="invisible" />
-
-    <!-- Кнопки управления внизу -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,8 +19,6 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="@dimen/standard_margin">
-
-        <!-- Кнопка переключения камеры (большая круглая синяя иконка) -->
         <ImageButton
             android:id="@+id/btn_switch_camera"
             android:layout_width="@dimen/call_button_size"
@@ -38,8 +30,6 @@
             android:src="@drawable/ic_switch_camera"
             android:scaleType="fitCenter"
             android:elevation="4dp" />
-
-        <!-- Кнопка завершения звонка (большая круглая красная иконка) -->
         <ImageButton
             android:id="@+id/btn_end_call"
             android:layout_width="@dimen/call_button_size"

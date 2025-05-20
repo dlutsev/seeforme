@@ -1,1 +1,1 @@
-1 step: 1v1 videocall. No queue on server, just stupid realisation
+pre-final version
