@@ -1,0 +1,4 @@
+# {"createdAt": "1746277458","requestCreatorId": "1"}
+# docker exec kafka-service kafka-topics --bootstrap-server kafka:29092 --create --topic help-request --partitions 1 --replication-factor 1
+# docker exec -it kafka-service bash /usr/bin/kafka-console-producer --topic help-request --bootstrap-server kafka:29092
+# docker exec -it kafka-service bash /usr/bin/kafka-console-consumer --topic help-request --bootstrap-server kafka:29092 --from-beginning
