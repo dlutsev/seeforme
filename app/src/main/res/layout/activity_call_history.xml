@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#007AFF">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Назад"
+            android:padding="8dp"
+            android:tint="#FFFFFF" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="История звонков"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_call_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/tv_empty_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="История звонков пуста"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:visibility="gone" />
+</LinearLayout> 

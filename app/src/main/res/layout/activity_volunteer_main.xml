@@ -47,9 +47,23 @@
             android:text="Вы получите уведомление, когда кому-то потребуется ваша помощь."
             android:textAlignment="center"
             android:textSize="@dimen/normal_text_size"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="20dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp" />
+
+        <Button
+            android:id="@+id/btn_call_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="История звонков"
+            android:textSize="@dimen/button_text_size"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="20dp"
+            android:padding="16dp" />
 
         <Button
             android:id="@+id/btn_logout"

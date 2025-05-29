@@ -18,9 +18,14 @@ class VolunteerMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_volunteer_main)
         statisticsService = StatisticsService()
-        val volunteerId = "volunteer1"
         subscribeToPushNotifications()
         loadStatistics()
+        
+        val callHistoryButton: Button = findViewById(R.id.btn_call_history)
+        callHistoryButton.setOnClickListener {
+            openCallHistory()
+        }
+        
         val logoutButton: Button = findViewById(R.id.btn_logout)
         logoutButton.setOnClickListener {
             FirebaseMessaging.getInstance().unsubscribeFromTopic("help-request")
@@ -77,10 +82,16 @@ class VolunteerMainActivity : AppCompatActivity() {
     }
     
     private fun startCall(volunteerId: String, targetUser: String) {
+        Log.d("VolunteerMainActivity", "Начинаем звонок. volunteerId=$volunteerId, targetUser=$targetUser")
         val intent = Intent(this, CallActivity::class.java).apply {
             putExtra("currentUser", volunteerId) 
             putExtra("targetUser", targetUser)
         }
+        startActivity(intent)
+    }
+    
+    private fun openCallHistory() {
+        val intent = Intent(this, CallHistoryActivity::class.java)
         startActivity(intent)
     }
     

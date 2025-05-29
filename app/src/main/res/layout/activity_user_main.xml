@@ -34,9 +34,22 @@
             android:id="@+id/btn_request_help"
             android:layout_width="match_parent"
             android:layout_height="@dimen/large_button_height"
-            android:text="Запросить помощь волонтера"
+            android:text="Запросить помощь"
             android:textSize="@dimen/large_button_text_size"
             android:backgroundTint="#007AFF"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginBottom="@dimen/standard_margin" />
+
+        <Button
+            android:id="@+id/btn_call_history"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:text="История звонков"
+            android:textSize="@dimen/button_text_size"
+            android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:layout_gravity="center"
             android:layout_marginStart="@dimen/standard_margin"

@@ -20,10 +20,17 @@ class UserMainActivity : AppCompatActivity() {
         helpRequestService = HelpRequestService(this)
         statisticsService = StatisticsService()
         loadStatistics()
+        
         val requestHelpButton: Button = findViewById(R.id.btn_request_help)
         requestHelpButton.setOnClickListener {
             sendHelpRequestAndCall()
         }
+        
+        val callHistoryButton: Button = findViewById(R.id.btn_call_history)
+        callHistoryButton.setOnClickListener {
+            openCallHistory()
+        }
+        
         val logoutButton: Button = findViewById(R.id.btn_logout)
         logoutButton.setOnClickListener {
             val appPrefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
@@ -73,10 +80,16 @@ class UserMainActivity : AppCompatActivity() {
     }
     
     private fun startCall(userId: String, targetVolunteer: String) {
+        Log.d("UserMainActivity", "Начинаем звонок. userId=$userId, targetVolunteer=$targetVolunteer")
         val intent = Intent(this, CallActivity::class.java).apply {
             putExtra("currentUser", userId)
             putExtra("targetUser", targetVolunteer)
         }
+        startActivity(intent)
+    }
+    
+    private fun openCallHistory() {
+        val intent = Intent(this, CallHistoryActivity::class.java)
         startActivity(intent)
     }
     

@@ -42,6 +42,7 @@ android {
 
 dependencies {
     implementation ("com.google.firebase:firebase-messaging:23.4.1")
+    implementation ("androidx.recyclerview:recyclerview:1.2.1")
     implementation("com.google.firebase:firebase-analytics")
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("io.getstream:stream-webrtc-android:1.3.4")

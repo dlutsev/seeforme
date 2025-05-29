@@ -23,6 +23,10 @@ class CallActivity : AppCompatActivity() {
     private lateinit var remoteVideoView: SurfaceViewRenderer
     private lateinit var eglBase: EglBase
     private lateinit var signalingClient: SignalingClient
+    private lateinit var callHistoryService: CallHistoryService
+    private lateinit var currentUser: String
+    private lateinit var targetUser: String
+    private var isCallSaved = false
 
     private val iceCandidatesQueue = mutableListOf<String>()
 
@@ -34,8 +38,14 @@ class CallActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
 
-        val currentUser = intent.getStringExtra("currentUser") ?: return
-        val targetUser = intent.getStringExtra("targetUser") ?: return
+        currentUser = intent.getStringExtra("currentUser") ?: return
+        targetUser = intent.getStringExtra("targetUser") ?: return
+        try {
+            callHistoryService = CallHistoryService(applicationContext)
+            Log.d("CallActivity", "CallHistoryService успешно инициализирован")
+        } catch (e: Exception) {
+            Log.e("CallActivity", "Ошибка при инициализации CallHistoryService: ${e.message}", e)
+        }
 
         if (!WebRTCState.startCall(currentUser, targetUser)) {
             Toast.makeText(this, "Звонок уже активен", Toast.LENGTH_SHORT).show()
@@ -112,7 +122,6 @@ class CallActivity : AppCompatActivity() {
             Log.d("CallActivity", "Logged in with role: $role")
             signalingClient.setOnReadyListener {
                 Log.d("CallActivity", "Ready event received, role: $role")
-                
                 if (role == "caller") {
                     webRTCClient.startLocalVideoCapture()
                     webRTCClient.createOffer(targetUser, signalingClient) { offer ->
@@ -125,6 +134,17 @@ class CallActivity : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.btn_end_call).setOnClickListener {
+            Log.d("CallActivity", "Нажата кнопка завершения звонка")
+            if (!isCallSaved) {
+                try {
+                    Log.d("CallActivity", "Сохраняем звонок в историю напрямую из обработчика кнопки")
+                    saveCallToHistory()
+                    isCallSaved = true
+                    Log.d("CallActivity", "Звонок успешно сохранен в историю")
+                } catch (e: Exception) {
+                    Log.e("CallActivity", "Ошибка при сохранении звонка: ${e.message}", e)
+                }
+            }
             endCall()
             finish()
         }
@@ -144,24 +164,73 @@ class CallActivity : AppCompatActivity() {
     }
 
     private fun endCall() {
+        Log.d("CallActivity", "Завершение звонка. isCallSaved=$isCallSaved")
         webRTCClient.endCall()
         signalingClient.disconnect()
         WebRTCState.endCall()
         iceCandidatesQueue.clear()
+        if (!isCallSaved) {
+            saveCallToHistory()
+            isCallSaved = true
+            Log.d("CallActivity", "Звонок сохранен в историю. isCallSaved установлен в true")
+        } else {
+            Log.d("CallActivity", "Звонок уже был сохранен ранее, пропускаем сохранение")
+        }
+    }
+    
+    private fun saveCallToHistory() {
+        if (!::callHistoryService.isInitialized) {
+            Log.e("CallActivity", "Ошибка: callHistoryService не инициализирован. Пытаемся инициализировать.")
+            try {
+                callHistoryService = CallHistoryService(applicationContext)
+                Log.d("CallActivity", "CallHistoryService успешно инициализирован в saveCallToHistory")
+            } catch (e: Exception) {
+                Log.e("CallActivity", "Не удалось инициализировать CallHistoryService: ${e.message}", e)
+                return
+            }
+        }
 
+        val isVolunteer = currentUser.startsWith("volunteer")
+        val contactId: String
+        val contactName: String
+        Log.d("CallActivity", "Сохранение звонка в историю. Текущий пользователь: $currentUser, определенная роль isVolunteer: $isVolunteer")
+        if (isVolunteer) {
+            contactId = "user1"
+            contactName = "Пользователь"
+        } else {
+            contactId = "volunteer1"
+            contactName = "Волонтер"
+        }
+        
+        try {
+            Log.d("CallActivity", "Вызов метода saveCall: contactId=$contactId, contactName=$contactName, isVolunteer=$isVolunteer")
+            callHistoryService.saveCall(contactId, contactName, isVolunteer)
+            Log.d("CallActivity", "Метод saveCall успешно выполнен")
+        } catch (e: Exception) {
+            Log.e("CallActivity", "Ошибка при сохранении звонка: ${e.message}", e)
+        }
+        
+        Log.d("CallActivity", "Звонок сохранен в историю: $contactName ($contactId) для ${if (isVolunteer) "волонтера" else "пользователя"}")
     }
 
     override fun onBackPressed() {
+        Log.d("CallActivity", "onBackPressed вызван")
         endCall()
         super.onBackPressed()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        endCall()
-        localVideoView.release()
-        remoteVideoView.release()
-        eglBase.release()
-        webRTCClient.release()
+        Log.d("CallActivity", "onDestroy вызван. isCallSaved=$isCallSaved")
+        if (!isCallSaved) {
+            Log.d("CallActivity", "onDestroy: звонок еще не был сохранен, вызываем endCall()")
+            endCall()
+        } else {
+            Log.d("CallActivity", "onDestroy: звонок уже был сохранен, просто освобождаем ресурсы")
+            webRTCClient.release()
+            localVideoView.release()
+            remoteVideoView.release()
+            eglBase.release()
+        }
     }
 }
